@@ -18,25 +18,59 @@ namespace foci.Pages
             _context = context;
         }
 
-        public Csapat Csapat { get; set; } = default!;
+        public IList<Meccs> Meccs { get; set; } = default!;
+        public IList<Csapat> Csapatok { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task OnGetAsync()
         {
-            if (id == null)
+            Meccs = await _context.Meccsek.ToListAsync();
+
+            List<Csapat> csapatokList = new List<Csapat>();
+
+            foreach (string csapatNev in Meccs.Select(x => x.HazaiNev).ToList().Concat(Meccs.Select(x=>x.VendegNev)).Distinct().ToList())
             {
-                return NotFound();
+                List<Meccs> hazaiCsapat = Meccs.Where(x => x.HazaiNev == csapatNev).ToList();
+                List<Meccs> vendegCsapat = Meccs.Where(x => x.VendegNev == csapatNev).ToList();
+
+
+                Csapat csapat = new Csapat();
+
+                csapat.CsapatNeve = csapatNev;
+                csapat.JatszottMerkozesekSzama = hazaiCsapat.Count() + vendegCsapat.Count();
+                csapat.KapottGolok = hazaiCsapat.Sum(x => x.VendegVeg) + vendegCsapat.Sum(x => x.HazaiVeg);
+                csapat.LottGolok = hazaiCsapat.Sum(x => x.HazaiVeg) + vendegCsapat.Sum(x => x.VendegVeg);
+                csapat.NyertMeccsek = hazaiCsapat.Count(x => x.HazaiVeg > x.VendegVeg) + vendegCsapat.Count(x => x.VendegVeg > x.HazaiVeg);
+                csapat.VesztettMeccsek = vendegCsapat.Count(x => x.HazaiVeg > x.VendegVeg) + hazaiCsapat.Count(x => x.VendegVeg > x.HazaiVeg);
+                csapat.Dontetlen = vendegCsapat.Count(x => x.HazaiVeg == x.VendegVeg) + hazaiCsapat.Count(x => x.VendegVeg == x.HazaiVeg);
+                csapat.Pontszam = csapat.NyertMeccsek * 3 + csapat.Dontetlen;
+                csapat.Helyezes = 0;
+
+                csapatokList.Add(csapat);
+
             }
 
-            var csapat = await _context.Csapatok.FirstOrDefaultAsync(m => m.CsapatNeve == id);
-            if (csapat == null)
+            Csapatok = csapatokList.OrderByDescending(x=>x.Pontszam).ToList();
+
+            //for (int i = 0; i < Csapatok.Count(); i++)
+            //{
+            //    Csapatok.OrderByDescending(x => x.Pontszam).ToList()[i].Helyezes = i + 1;
+            //}
+
+            int helyezes = 1;
+            for (int i = 0; i < Csapatok.Count(); i++)
             {
-                return NotFound();
+                if (i != 0)
+                {
+                    if (Csapatok[i-1].Pontszam != Csapatok[i].Pontszam)
+                    {
+                        helyezes++;
+                    }
+                }
+
+                Csapatok[i].Helyezes = helyezes;
             }
-            else
-            {
-                Csapat = csapat;
-            }
-            return Page();
+
+
         }
     }
 }
