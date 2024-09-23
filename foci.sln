@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "foci", "foci\foci.csproj", "{5448A911-53FE-4EE6-89E2-EBD65AA0381B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "foci", "foci\foci.csproj", "{5448A911-53FE-4EE6-89E2-EBD65AA0381B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,10 @@
+﻿@page
+@model foci.Pages.AdatokFeltoltesModel
+@{
+}
+
+<form method="post" enctype="multipart/form-data">
+    <label asp-for="Feltoltes">Add meg a feltöltendő fájlt</label>
+    <input asp-for="Feltoltes" type="file"/>
+    <input type="submit" value="Feltöltés"/>
+</form>
